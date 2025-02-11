@@ -203,7 +203,8 @@ class _MessageNotificationCardState extends State<MessageNotificationCard> {
                           text: "${widget.notificationData['title']}",
                           style: GoogleFonts.aDLaMDisplay(fontWeight: FontWeight.w300),
                         ),
-                        const TextSpan(text: " has send you a new message.")
+                        TextSpan(
+                            text: " ${widget.bookData!["name"]} has neen added to the network.")
                       ]),
                     ),
                     Text(

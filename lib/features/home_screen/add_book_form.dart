@@ -13,6 +13,7 @@ import 'package:readify/services/notification_service.dart';
 import 'package:readify/shared/widgets/widgets.dart';
 import 'package:readify/utils/app_style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class AddBookForm extends StatefulWidget {
   const AddBookForm({super.key});
@@ -416,7 +417,7 @@ class _AddBookFormState extends State<AddBookForm> {
               ) ==
               -1 &&
           mounted) {
-        Widgets.showSnackbar(context, Colors.red, "Set a category");
+        Widgets.showSnackbar(context, Colors.red, "Set a category", ContentType.failure);
       } else {
         String category = CategoryData
             .categoryData[isSelected.indexWhere(
@@ -436,7 +437,7 @@ class _AddBookFormState extends State<AddBookForm> {
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
               // ignore: use_build_context_synchronously
-              Widgets.showSnackbar(context, Colors.green, "Book entered");
+              Widgets.showSnackbar(context, Colors.green, "Book entered", ContentType.success);
               NotificationService().broadcastNotification(
                 "New book added!",
                 "${FirebaseAuth.instance.currentUser!.displayName!} has added $name for you to see.",

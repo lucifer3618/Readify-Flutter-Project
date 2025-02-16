@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:readify/features/book_screen/widgets/rectangle_button.dart';
 import 'package:readify/features/message_screen/chat_page.dart';
 import 'package:readify/services/database_service.dart';
 import 'package:readify/services/web_services.dart';
+import 'package:readify/shared/widgets/widgets.dart';
 import 'package:readify/utils/app_style.dart';
 
 class BookScreen extends StatefulWidget {
@@ -346,6 +348,10 @@ class _BookScreenState extends State<BookScreen> {
                 widget.currentOwnerId,
                 widget.bookId,
               );
+              if (mounted) {
+                Widgets.showSnackbar(
+                    context, Colors.blue, "Exchange Request has sent...", ContentType.success);
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppStyle.steelBlue,

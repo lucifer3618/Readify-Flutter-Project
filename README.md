@@ -1,6 +1,6 @@
 # Readify - A Book Sharing and Community App
 
-![Image](https://github.com/user-attachments/assets/5200b61e-80fc-4e4a-9ca8-4d0ea9aee1d5)
+![Image](https://github.com/user-attachments/assets/984bade1-a419-4fe0-a574-bae0ab17eed8)
 
 Readify is a social book-sharing application designed to foster a community of readers. Built with Flutter, Firebase & Supabase, Readify provides a seamless and engaging reading experience while emphasizing social interaction through messaging, notifications, and personalized profiles.
 

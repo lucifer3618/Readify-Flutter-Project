@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -243,11 +244,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             );
             NotificationService.updateFCMToken();
-            Widgets.showSnackbar(context, Colors.green, "Logged in Successfully!");
+            Widgets.showSnackbar(
+                context, Colors.green, "Logged in Successfully!", ContentType.success);
           }
         } else {
           if (mounted) {
-            Widgets.showSnackbar(context, Colors.red, value);
+            Widgets.showSnackbar(context, Colors.red, value, ContentType.failure);
           }
         }
         setState(() {
@@ -265,7 +267,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (user == null && mounted) {
-      Widgets.showSnackbar(context, Colors.red, "Failed to Sign in with Google!");
+      Widgets.showSnackbar(
+          context, Colors.red, "Failed to Sign in with Google!", ContentType.failure);
     } else {
       await DatabaseService().savingUserData(user!.uid, user.displayName!, user.email!);
     }
@@ -283,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
         (Route<dynamic> route) => false, // This removes all previous routes
       );
       NotificationService.updateFCMToken();
-      Widgets.showSnackbar(context, Colors.green, "Successfully logged in!");
+      Widgets.showSnackbar(context, Colors.green, "Successfully logged in!", ContentType.success);
     }
     setState(() {
       _isLoading = true;

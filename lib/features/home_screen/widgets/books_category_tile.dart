@@ -106,7 +106,8 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               return GestureDetector(
-                  onTap: () => Navigator.push(
+                  onTap: () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => BookScreen(
@@ -114,9 +115,19 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
                           bookName: snapshot.data![index]["name"],
                           author: snapshot.data![index]["author"],
                           imagePath: snapshot.data![index]["image_path"],
-                          currentOwnerId: snapshot.data![index]["ownerId"],
+                          currentOwnerId: snapshot.data![index]["currentOwnerId"],
                         ),
-                      )),
+                      ),
+                    );
+                    DatabaseService().setRecentlyVisitedBook(
+                      snapshot.data![index]["id"],
+                      snapshot.data![index]["name"],
+                      snapshot.data![index]["author"],
+                      snapshot.data![index]["image_path"],
+                      snapshot.data![index]["currentOwnerId"],
+                      snapshot.data![index]["category"],
+                    );
+                  },
                   child: _bookCard(snapshot.data![index]));
             },
           );

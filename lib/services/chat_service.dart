@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -220,7 +221,8 @@ class ChatService {
       });
 
       // ignore: use_build_context_synchronously
-      Widgets.showSnackbar(context, AppStyle.primaryColor, "Successfully Deleted!");
+      Widgets.showSnackbar(
+          context, AppStyle.primaryColor, "Successfully Deleted!", ContentType.success);
     } catch (e) {
       log(e.toString());
     }

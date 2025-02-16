@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:readify/features/auth_screens/login_screen.dart';
 import 'package:readify/services/auth_service.dart';
@@ -63,13 +64,11 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                           Image.asset(AppMedia.forgotPasswordImage),
                           const Text(
                             "Forgot",
-                            style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                           ),
                           const Text(
                             "Password?",
-                            style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(
                             height: 10,
@@ -155,12 +154,14 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 context,
                 Colors.green,
                 "Reset link has send to the email.",
+                ContentType.success,
               );
             } else {
               Widgets.showSnackbar(
                 context,
                 Colors.red,
                 value,
+                ContentType.failure,
               );
             }
             setState(() {

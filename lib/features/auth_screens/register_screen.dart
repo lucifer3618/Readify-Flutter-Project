@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:readify/features/auth_screens/widgets/login_icon_button.dart';
@@ -233,13 +234,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         } else {
           // Show error message if registration fails
           if (mounted) {
-            Widgets.showSnackbar(context, Colors.red, result.toString());
+            Widgets.showSnackbar(context, Colors.red, result.toString(), ContentType.failure);
           }
         }
       } catch (e) {
         // Handle any errors (e.g., FirebaseAuthException) and show a snackbar
         if (mounted) {
-          Widgets.showSnackbar(context, Colors.red, "An error occurred: $e");
+          Widgets.showSnackbar(context, Colors.red, "An error occurred: $e", ContentType.failure);
         }
       } finally {
         // Ensure loading is stopped regardless of success or failure

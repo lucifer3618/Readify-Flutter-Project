@@ -284,37 +284,45 @@ class _HomePageState extends State<HomePage> {
             child: Text("No data to display!"),
           );
         } else {
-          return ListView.builder(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 15),
-                child: SizedBox(
-                  width: 90,
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookScreen(
-                            bookId: snapshot.data![index]["id"],
-                            bookName: snapshot.data![index]["name"],
-                            author: snapshot.data![index]["author"],
-                            imagePath: snapshot.data![index]["image_path"],
-                            currentOwnerId: snapshot.data![index]["ownerId"],
-                          ),
-                        )),
-                    child: BookTile(
-                      name: snapshot.data![index]["name"],
-                      category: snapshot.data![index]["category"],
-                      imageURL: snapshot.data![index]["image_path"],
+          if (snapshot.data!.isNotEmpty) {
+            return ListView.builder(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 15),
+                  child: SizedBox(
+                    width: 90,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookScreen(
+                              bookId: snapshot.data![index]["id"],
+                              bookName: snapshot.data![index]["name"],
+                              author: snapshot.data![index]["author"],
+                              imagePath: snapshot.data![index]["image_path"],
+                              currentOwnerId: snapshot.data![index]["ownerId"],
+                            ),
+                          )),
+                      child: BookTile(
+                        name: snapshot.data![index]["name"],
+                        category: snapshot.data![index]["category"],
+                        imageURL: snapshot.data![index]["image_path"],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-            itemCount: snapshot.data!.length,
-          );
+                );
+              },
+              itemCount: snapshot.data!.length,
+            );
+          } else {
+            return Center(
+              child: Image.asset(
+                "assets/images/emptyRecent.jpg",
+              ),
+            );
+          }
         }
       },
     );

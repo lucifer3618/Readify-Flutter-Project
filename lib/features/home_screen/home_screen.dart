@@ -364,7 +364,7 @@ class _HomePageState extends State<HomePage> {
                             bookName: snapshot.data!.docs[index]["name"],
                             author: snapshot.data!.docs[index]["author"],
                             imagePath: snapshot.data!.docs[index]["image_path"],
-                            currentOwnerId: snapshot.data!.docs[index]["ownerId"],
+                            currentOwnerId: snapshot.data!.docs[index]["currentOwnerId"],
                           ),
                         ),
                       );
@@ -373,7 +373,7 @@ class _HomePageState extends State<HomePage> {
                         snapshot.data!.docs[index]["name"],
                         snapshot.data!.docs[index]["author"],
                         snapshot.data!.docs[index]["image_path"],
-                        snapshot.data!.docs[index]["ownerId"],
+                        snapshot.data!.docs[index]["currentOwnerId"],
                         snapshot.data!.docs[index]["category"],
                       );
                     },

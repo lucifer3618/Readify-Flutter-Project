@@ -115,7 +115,7 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
                           bookName: snapshot.data![index]["name"],
                           author: snapshot.data![index]["author"],
                           imagePath: snapshot.data![index]["image_path"],
-                          currentOwnerId: snapshot.data![index]["ownerId"],
+                          currentOwnerId: snapshot.data![index]["currentOwnerId"],
                         ),
                       ),
                     );
@@ -124,7 +124,7 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
                       snapshot.data![index]["name"],
                       snapshot.data![index]["author"],
                       snapshot.data![index]["image_path"],
-                      snapshot.data![index]["ownerId"],
+                      snapshot.data![index]["currentOwnerId"],
                       snapshot.data![index]["category"],
                     );
                   },

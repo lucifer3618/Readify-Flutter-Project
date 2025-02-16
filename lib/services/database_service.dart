@@ -95,7 +95,7 @@ class DatabaseService {
       "author": author,
       "category": category,
       "image_path": imagePath,
-      "ownerId": FirebaseAuth.instance.currentUser!.uid,
+      "ownerId": ownerId,
       "timestamp": Timestamp.now(),
     });
   }

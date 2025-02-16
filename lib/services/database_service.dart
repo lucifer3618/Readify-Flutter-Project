@@ -103,7 +103,13 @@ class DatabaseService {
   // Get Recently VisitedBooks
   Stream<List<Map<String, dynamic>>> getRecentlyVisitedBooks() {
     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    return _userCollection.doc(currentUserId).collection("visitedBooks").limit(5).snapshots().map(
+    return _userCollection
+        .doc(currentUserId)
+        .collection("visitedBooks")
+        .orderBy("timestamp", descending: true)
+        .limit(5)
+        .snapshots()
+        .map(
       (snapshot) {
         return snapshot.docs.map(
           (doc) {

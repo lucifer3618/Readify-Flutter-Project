@@ -84,6 +84,36 @@ class DatabaseService {
     return data;
   }
 
+  // Set Recently visited books
+  Future<void> setRecentlyVisitedBook(String bookId, String bookName, String author,
+      String imagePath, String ownerId, String category) async {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    var bookReference = _userCollection.doc(currentUserId).collection("visitedBooks").doc(bookId);
+    await bookReference.set({
+      "id": bookId,
+      "name": bookName,
+      "author": author,
+      "category": category,
+      "image_path": imagePath,
+      "ownerId": FirebaseAuth.instance.currentUser!.uid,
+      "timestamp": Timestamp.now(),
+    });
+  }
+
+  // Get Recently VisitedBooks
+  Stream<List<Map<String, dynamic>>> getRecentlyVisitedBooks() {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    return _userCollection.doc(currentUserId).collection("visitedBooks").limit(5).snapshots().map(
+      (snapshot) {
+        return snapshot.docs.map(
+          (doc) {
+            return doc.data();
+          },
+        ).toList();
+      },
+    );
+  }
+
   // Set FCM Token for user
   void setFMCTocken(String fcmTocken) async {
     DocumentReference docRef = _userCollection.doc(FirebaseAuth.instance.currentUser!.uid);

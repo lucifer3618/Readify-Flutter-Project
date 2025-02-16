@@ -7,6 +7,7 @@ class Widgets {
       elevation: 0,
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
+      dismissDirection: DismissDirection.horizontal,
       content: AwesomeSnackbarContent(
         title: type == ContentType.success ? "Success!" : "Oops!",
         message: message,
@@ -14,7 +15,9 @@ class Widgets {
       ),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
   }
 
   static ElevatedButton customElevatedButton(String text, Color color, Function() onPressed) {

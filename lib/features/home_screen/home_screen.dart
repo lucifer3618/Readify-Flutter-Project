@@ -18,6 +18,7 @@ import 'package:readify/features/profile_screen/profile_screen.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
 import 'package:readify/services/database_service.dart';
 import 'package:readify/utils/app_style.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -271,11 +272,7 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
       stream: DatabaseService().getRecentlyVisitedBooks(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           return Center(
             child: Text(snapshot.error.toString()),
           );
@@ -285,36 +282,39 @@ class _HomePageState extends State<HomePage> {
           );
         } else {
           if (snapshot.data!.isNotEmpty) {
-            return ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: SizedBox(
-                    width: 90,
-                    child: GestureDetector(
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookScreen(
-                              bookId: snapshot.data![index]["id"],
-                              bookName: snapshot.data![index]["name"],
-                              author: snapshot.data![index]["author"],
-                              imagePath: snapshot.data![index]["image_path"],
-                              currentOwnerId: snapshot.data![index]["ownerId"],
-                            ),
-                          )),
-                      child: BookTile(
-                        name: snapshot.data![index]["name"],
-                        category: snapshot.data![index]["category"],
-                        imageURL: snapshot.data![index]["image_path"],
+            return Skeletonizer(
+              enabled: snapshot.connectionState == ConnectionState.waiting,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: SizedBox(
+                      width: 90,
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BookScreen(
+                                bookId: snapshot.data![index]["id"],
+                                bookName: snapshot.data![index]["name"],
+                                author: snapshot.data![index]["author"],
+                                imagePath: snapshot.data![index]["image_path"],
+                                currentOwnerId: snapshot.data![index]["ownerId"],
+                              ),
+                            )),
+                        child: BookTile(
+                          name: snapshot.data![index]["name"],
+                          category: snapshot.data![index]["category"],
+                          imageURL: snapshot.data![index]["image_path"],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-              itemCount: snapshot.data!.length,
+                  );
+                },
+                itemCount: snapshot.data!.length,
+              ),
             );
           } else {
             return Center(
@@ -333,11 +333,7 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
       stream: FirebaseFirestore.instance.collection("books").limit(5).snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           return Center(
             child: Text(snapshot.error.toString()),
           );
@@ -346,42 +342,45 @@ class _HomePageState extends State<HomePage> {
             child: Text("No data to display!"),
           );
         } else {
-          return SizedBox(
-            height: 250,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookScreen(
-                            bookId: snapshot.data!.docs[index]["id"],
-                            bookName: snapshot.data!.docs[index]["name"],
-                            author: snapshot.data!.docs[index]["author"],
-                            imagePath: snapshot.data!.docs[index]["image_path"],
-                            currentOwnerId: snapshot.data!.docs[index]["currentOwnerId"],
+          return Skeletonizer(
+            enabled: snapshot.connectionState == ConnectionState.waiting,
+            child: SizedBox(
+              height: 250,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookScreen(
+                              bookId: snapshot.data!.docs[index]["id"],
+                              bookName: snapshot.data!.docs[index]["name"],
+                              author: snapshot.data!.docs[index]["author"],
+                              imagePath: snapshot.data!.docs[index]["image_path"],
+                              currentOwnerId: snapshot.data!.docs[index]["currentOwnerId"],
+                            ),
                           ),
-                        ),
-                      );
-                      DatabaseService().setRecentlyVisitedBook(
-                        snapshot.data!.docs[index]["id"],
-                        snapshot.data!.docs[index]["name"],
-                        snapshot.data!.docs[index]["author"],
-                        snapshot.data!.docs[index]["image_path"],
-                        snapshot.data!.docs[index]["currentOwnerId"],
-                        snapshot.data!.docs[index]["category"],
-                      );
-                    },
-                    child: NearbyBookCard(bookData: snapshot.data!.docs[index].data()),
-                  ),
-                );
-              },
-              itemCount: snapshot.data!.docs.length,
+                        );
+                        DatabaseService().setRecentlyVisitedBook(
+                          snapshot.data!.docs[index]["id"],
+                          snapshot.data!.docs[index]["name"],
+                          snapshot.data!.docs[index]["author"],
+                          snapshot.data!.docs[index]["image_path"],
+                          snapshot.data!.docs[index]["currentOwnerId"],
+                          snapshot.data!.docs[index]["category"],
+                        );
+                      },
+                      child: NearbyBookCard(bookData: snapshot.data!.docs[index].data()),
+                    ),
+                  );
+                },
+                itemCount: snapshot.data!.docs.length,
+              ),
             ),
           );
         }

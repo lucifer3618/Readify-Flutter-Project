@@ -66,7 +66,7 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
         const SizedBox(
           height: 30,
         ),
-        _booksNearYouSection(),
+        _booksCategorySection(),
         const SizedBox(
           height: 30,
         ),
@@ -74,7 +74,7 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
     );
   }
 
-  Widget _booksNearYouSection() {
+  Widget _booksCategorySection() {
     return StreamBuilder(
       stream: selectedIndex == 0
           ? DatabaseService().booksStream()

@@ -3,6 +3,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 // Custom Imports
 import 'package:readify/features/auth_screens/login_screen.dart';
+import 'package:readify/services/location_service.dart';
 import 'package:readify/utils/app_style.dart';
 
 class OnbordingBottomNavbar extends StatelessWidget {
@@ -26,13 +27,15 @@ class OnbordingBottomNavbar extends StatelessWidget {
             child: isLastPage
                 ? const SizedBox()
                 : GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                            fullscreenDialog: true,
-                          ));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                          fullscreenDialog: true,
+                        ),
+                      );
+                      await LocationService().reqestPermission(context);
                     },
                     child: Text(
                       "Skip",

@@ -17,6 +17,7 @@ import 'package:readify/features/message_screen/message_screen.dart';
 import 'package:readify/features/profile_screen/profile_screen.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
 import 'package:readify/services/database_service.dart';
+import 'package:readify/services/location_service.dart';
 import 'package:readify/utils/app_style.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -185,7 +186,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
+          onPressed: () async {
             showModalBottomSheet<void>(
               context: context,
               builder: (context) => const AddBookForm(),
@@ -197,6 +198,8 @@ class _HomePageState extends State<HomePage> {
               sheetAnimationStyle: AnimationStyle(duration: const Duration(milliseconds: 300)),
               backgroundColor: Colors.white,
             );
+            // Get Current Location Data
+            await LocationService().getCurrentPosition();
           },
           backgroundColor: AppStyle.primaryColor,
           child: const Icon(

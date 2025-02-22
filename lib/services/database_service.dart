@@ -30,6 +30,7 @@ class DatabaseService {
           "profile_img": "",
           "chatUsers": [],
           "fcm_token": "",
+          "location": null,
         });
       } else {
         // Update the last_login if the document doesn't exist

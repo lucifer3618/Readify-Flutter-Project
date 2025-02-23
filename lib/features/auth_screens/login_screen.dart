@@ -287,6 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       NotificationService.updateFCMToken();
       Widgets.showSnackbar(context, Colors.green, "Successfully logged in!", ContentType.success);
+      DatabaseService().updateUserLocation();
     }
     setState(() {
       _isLoading = true;

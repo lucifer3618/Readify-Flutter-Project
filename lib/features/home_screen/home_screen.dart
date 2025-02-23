@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,6 @@ import 'package:readify/features/message_screen/message_screen.dart';
 import 'package:readify/features/profile_screen/profile_screen.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
 import 'package:readify/services/database_service.dart';
-import 'package:readify/services/location_service.dart';
 import 'package:readify/utils/app_style.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -198,8 +196,6 @@ class _HomePageState extends State<HomePage> {
               sheetAnimationStyle: AnimationStyle(duration: const Duration(milliseconds: 300)),
               backgroundColor: Colors.white,
             );
-            // Get Current Location Data
-            await LocationService().getCurrentPosition();
           },
           backgroundColor: AppStyle.primaryColor,
           child: const Icon(
@@ -334,7 +330,7 @@ class _HomePageState extends State<HomePage> {
   // Book near you section
   Widget _nearbyBookSection() {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection("books").limit(5).snapshots(),
+      stream: DatabaseService().getNearbyBooks(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -361,28 +357,28 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => BookScreen(
-                              bookId: snapshot.data!.docs[index]["id"],
-                              bookName: snapshot.data!.docs[index]["name"],
-                              author: snapshot.data!.docs[index]["author"],
-                              imagePath: snapshot.data!.docs[index]["image_path"],
-                              currentOwnerId: snapshot.data!.docs[index]["currentOwnerId"],
+                              bookId: snapshot.data![index]["id"],
+                              bookName: snapshot.data![index]["name"],
+                              author: snapshot.data![index]["author"],
+                              imagePath: snapshot.data![index]["image_path"],
+                              currentOwnerId: snapshot.data![index]["currentOwnerId"],
                             ),
                           ),
                         );
                         DatabaseService().setRecentlyVisitedBook(
-                          snapshot.data!.docs[index]["id"],
-                          snapshot.data!.docs[index]["name"],
-                          snapshot.data!.docs[index]["author"],
-                          snapshot.data!.docs[index]["image_path"],
-                          snapshot.data!.docs[index]["currentOwnerId"],
-                          snapshot.data!.docs[index]["category"],
+                          snapshot.data![index]["id"],
+                          snapshot.data![index]["name"],
+                          snapshot.data![index]["author"],
+                          snapshot.data![index]["image_path"],
+                          snapshot.data![index]["currentOwnerId"],
+                          snapshot.data![index]["category"],
                         );
                       },
-                      child: NearbyBookCard(bookData: snapshot.data!.docs[index].data()),
+                      child: NearbyBookCard(bookData: snapshot.data![index]),
                     ),
                   );
                 },
-                itemCount: snapshot.data!.docs.length,
+                itemCount: snapshot.data!.length,
               ),
             ),
           );

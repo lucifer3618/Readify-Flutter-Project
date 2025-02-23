@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:readify/shared/widgets/permission_screen_layout.dart';
@@ -42,10 +43,17 @@ class LocationService {
     }
   }
 
-  // Determin Postion
+  // Determin User's current Postion
   Future<Position> getCurrentPosition() async {
     Position pos = await Geolocator.getCurrentPosition();
     log(pos.toString());
     return pos;
+  }
+
+  // Calculate Distance
+  double calculateDistance(GeoPoint start, GeoPoint end) {
+    return Geolocator.distanceBetween(
+            start.latitude, start.longitude, end.latitude, end.longitude) /
+        1000;
   }
 }

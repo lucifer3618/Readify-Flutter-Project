@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:readify/services/helper_function.dart';
+import 'package:readify/services/location_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DatabaseService {
@@ -58,6 +60,7 @@ class DatabaseService {
   // Store book in database
   Future savingBookData(String bookId, String bookName, String isbn, String authorName,
       String imagePath, String category) async {
+    Position pos = await LocationService().getCurrentPosition();
     await _bookCollection.doc(bookId).set({
       "id": bookId,
       "name": bookName,
@@ -66,6 +69,7 @@ class DatabaseService {
       "image_path": imagePath,
       "category": category,
       "favorited_users": [],
+      "location": GeoPoint(pos.latitude, pos.longitude),
       "ownerId": FirebaseAuth.instance.currentUser!.uid,
       "currentOwnerId": FirebaseAuth.instance.currentUser!.uid,
       "timestamp": Timestamp.now(),
@@ -348,5 +352,47 @@ class DatabaseService {
         ).toList();
       },
     );
+  }
+
+  // Update Users Position
+  Future<void> updateUserLocation() async {
+    Position pos = await LocationService().getCurrentPosition();
+    try {
+      _userCollection.doc(FirebaseAuth.instance.currentUser!.uid).update({
+        "location": GeoPoint(pos.latitude, pos.longitude),
+      });
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  // Get Nearby book Stream
+  Stream<List<Map<String, dynamic>>> getNearbyBooks() {
+    return _userCollection
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .asyncMap((userSnapshot) async {
+      GeoPoint userLocation = userSnapshot['location'];
+
+      QuerySnapshot bookSnapshot = await FirebaseFirestore.instance.collection('books').get();
+
+      return bookSnapshot.docs.where((book) {
+        Map<String, dynamic> bookData = book.data() as Map<String, dynamic>;
+        if (bookData['location'] != null) {
+          GeoPoint bookLocation = bookData['location'];
+          double distance = LocationService().calculateDistance(userLocation, bookLocation);
+          log("Distance to book '${bookData['name']}': $distance km");
+          return distance <= 5.0;
+        }
+        return false;
+      }).map((book) {
+        Map<String, dynamic> bookData = book.data() as Map<String, dynamic>;
+        bookData['distance'] = LocationService().calculateDistance(
+          userLocation,
+          bookData['location'],
+        );
+        return bookData;
+      }).toList();
+    });
   }
 }

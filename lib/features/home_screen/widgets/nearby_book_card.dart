@@ -88,16 +88,16 @@ class _NearbyBookCardState extends State<NearbyBookCard> {
                               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const Row(
+                        Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_on,
                               color: AppStyle.primaryColor,
                               size: 17,
                             ),
                             Text(
-                              "5km away",
-                              style: TextStyle(color: Colors.white),
+                              "${(widget.bookData["distance"].toStringAsFixed(1))} km away",
+                              style: const TextStyle(color: Colors.white),
                             )
                           ],
                         )

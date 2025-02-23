@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:readify/features/auth_screens/widgets/login_icon_button.dart';
 import 'package:readify/features/home_screen/home_screen.dart';
 import 'package:readify/services/auth_service.dart';
+import 'package:readify/services/database_service.dart';
 import 'package:readify/services/helper_function.dart';
 import 'package:readify/services/notification_service.dart';
 import 'package:readify/shared/widgets/password_input_field.dart';
@@ -230,6 +231,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             );
             NotificationService.updateFCMToken();
+            DatabaseService().updateUserLocation();
           }
         } else {
           // Show error message if registration fails

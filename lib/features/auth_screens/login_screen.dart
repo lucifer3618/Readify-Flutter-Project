@@ -246,6 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
             NotificationService.updateFCMToken();
             Widgets.showSnackbar(
                 context, Colors.green, "Logged in Successfully!", ContentType.success);
+            DatabaseService().updateUserLocation();
           }
         } else {
           if (mounted) {

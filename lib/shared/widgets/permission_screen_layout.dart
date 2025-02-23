@@ -36,6 +36,7 @@ class _PermissionScreenLayoutState extends State<PermissionScreenLayout> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: AppStyle.pagePadding,
@@ -69,29 +70,35 @@ class _PermissionScreenLayoutState extends State<PermissionScreenLayout> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox.expand(),
-                    ElevatedButton(
-                      onPressed: widget.onPressed,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        minimumSize: const Size(double.infinity, 60),
-                        backgroundColor: AppStyle.primaryColor,
-                      ),
-                      child: const Text(
-                        "Enable Permission",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+                    const SizedBox(
+                      height: 70,
                     ),
                   ],
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: AppStyle.pagePadding
+            .add(EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.08)),
+        child: ElevatedButton(
+          onPressed: widget.onPressed,
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            minimumSize: const Size(double.infinity, 60),
+            backgroundColor: AppStyle.primaryColor,
+          ),
+          child: const Text(
+            "Enable Permission",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
         ),
       ),

@@ -338,7 +338,11 @@ class _HomePageState extends State<HomePage> {
           );
         } else if (!snapshot.hasData) {
           return const Center(
-            child: Text("No data to display!"),
+            child: SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(),
+            ),
           );
         } else {
           return Skeletonizer(

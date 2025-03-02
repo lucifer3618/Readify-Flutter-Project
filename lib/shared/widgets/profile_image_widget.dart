@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:readify/services/database_service.dart';
-import 'package:readify/utils/app_style.dart';
 
 class ProfileImageWidget extends StatelessWidget {
   final double width, height, borderWidth;

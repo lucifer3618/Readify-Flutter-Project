@@ -29,7 +29,7 @@ class DatabaseService {
           "uid": uid,
           "username": username,
           "email": email,
-          "profile_img": "",
+          "profile_img": null,
           "chatUsers": [],
           "fcm_token": "",
           "location": null,

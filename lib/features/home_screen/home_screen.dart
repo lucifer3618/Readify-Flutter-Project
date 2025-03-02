@@ -1,5 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +15,7 @@ import 'package:readify/features/message_screen/message_screen.dart';
 import 'package:readify/features/profile_screen/profile_screen.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
 import 'package:readify/services/database_service.dart';
+import 'package:readify/shared/widgets/profile_image_widget.dart';
 import 'package:readify/utils/app_style.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -237,21 +237,12 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ),
-              Container(
+              const ProfileImageWidget(
                 width: 55,
                 height: 55,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: AppStyle.sunsetOrange, width: 3)),
-                child: CachedNetworkImage(
-                  imageUrl:
-                      "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
-                  placeholder: (context, url) => const SizedBox(
-                      width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  width: 60,
-                ),
-              ),
+                borderColor: AppStyle.sunsetOrange,
+                borderWidth: 3,
+              )
             ],
           ),
           const SizedBox(

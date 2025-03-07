@@ -29,7 +29,7 @@ class DatabaseService {
           "uid": uid,
           "username": username,
           "email": email,
-          "profile_img": null,
+          "profile_img": {"file_path": "", "profile_url": ""},
           "chatUsers": [],
           "fcm_token": "",
           "location": null,
@@ -49,6 +49,15 @@ class DatabaseService {
   Future<QuerySnapshot> gettingUserData(String uid) async {
     QuerySnapshot snapshot = await _userCollection.where("uid", isEqualTo: uid).limit(1).get();
     return snapshot;
+  }
+
+  // Getting User data from database
+  Stream<Map<String, dynamic>> getUserStreamById(String uid) {
+    return _userCollection.doc(uid).snapshots().map(
+      (doc) {
+        return doc.data() as Map<String, dynamic>;
+      },
+    );
   }
 
   // Getting user Data from email
@@ -79,7 +88,35 @@ class DatabaseService {
 
   // Upload image to Supabase storage
   Future uploadImageToSupaBase(File image, String path) async {
-    await Supabase.instance.client.storage.from('images').upload(path, image);
+    log(path);
+    await Supabase.instance.client.storage.from('images').upload(
+          path,
+          image,
+          fileOptions: const FileOptions(
+            upsert: true,
+          ),
+        );
+  }
+
+  //Upload image to Supabase storage Future
+  uploadProfileImageToSupaBase(File image, String path, String filePathOnDB) async {
+    if (filePathOnDB == "") {
+      await Supabase.instance.client.storage.from('images').upload(path, image);
+    } else {
+      await Supabase.instance.client.storage.from('images').remove([
+        filePathOnDB,
+      ]);
+      await Supabase.instance.client.storage.from('images').upload(path, image);
+    }
+  }
+
+  // Update User profile image link in Firebase
+  void updateUserProfileImageLink(String path) async {
+    String fileURL =
+        Supabase.instance.client.storage.from("images").getPublicUrl("profile_image/$path");
+    await _userCollection.doc(FirebaseAuth.instance.currentUser!.uid).update({
+      "profile_img": {"profile_url": fileURL, "file_path": "profile_image/$path"}
+    });
   }
 
   // Get spcific user using id

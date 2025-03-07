@@ -15,8 +15,8 @@ class ProfileImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: DatabaseService().getUserById(FirebaseAuth.instance.currentUser!.uid),
+    return StreamBuilder(
+      stream: DatabaseService().getUserStreamById(FirebaseAuth.instance.currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SizedBox(
@@ -36,7 +36,7 @@ class ProfileImageWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: CachedNetworkImage(
-                imageUrl: snapshot.data!["profile_img"] ??
+                imageUrl: snapshot.data!["profile_img"]["profile_url"] ??
                     "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
                 placeholder: (context, url) => SizedBox(
                     width: width - 5,

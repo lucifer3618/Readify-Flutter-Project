@@ -39,6 +39,14 @@ class HelperFunction {
     return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
   }
 
+  // Generate random book id
+  String generateRandomProfileImageId(int length) {
+    const String chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final Random random = Random();
+
+    return List.generate(length, (index) => chars[random.nextInt(chars.length)]).join();
+  }
+
   // Generate random notification id
   String generateNotificationId(int length) {
     const String chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

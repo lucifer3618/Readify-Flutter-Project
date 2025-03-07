@@ -418,7 +418,6 @@ class DatabaseService {
         if (bookData['location'] != null) {
           GeoPoint bookLocation = bookData['location'];
           double distance = LocationService().calculateDistance(userLocation, bookLocation);
-          log("Distance to book '${bookData['name']}': $distance km");
           return distance <= 5.0;
         }
         return false;

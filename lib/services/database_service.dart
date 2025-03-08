@@ -431,4 +431,27 @@ class DatabaseService {
       }).toList();
     });
   }
+
+  // Search books
+  Stream<List<Map<String, dynamic>>> searchBooksStream(String searchText) {
+    return _bookCollection.snapshots().map(
+      (snapshot) {
+        List<Map<String, dynamic>> books = snapshot.docs.map(
+          (doc) {
+            final book = doc.data() as Map<String, dynamic>;
+            return book;
+          },
+        ).toList();
+
+        if (searchText.isNotEmpty) {
+          return books.where(
+            (book) {
+              return book['name'].toString().toLowerCase().contains(searchText.toLowerCase());
+            },
+          ).toList();
+        }
+        return books;
+      },
+    );
+  }
 }

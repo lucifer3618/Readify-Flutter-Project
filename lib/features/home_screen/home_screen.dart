@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -129,79 +131,82 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     return SafeArea(
-      child: Scaffold(
-        appBar: PreferredSize(
-            preferredSize: Size(double.infinity, MediaQuery.of(context).size.height * 0.21),
-            child: _appbarSection(now)),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: AppStyle.pagePadding.add(const EdgeInsets.only(top: 5)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Books Near You",
-                      style: GoogleFonts.aDLaMDisplay(fontSize: 24),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 200,
-                      child: _nearbyBookSection(),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      "Reacently viewed",
-                      style: GoogleFonts.aDLaMDisplay(fontSize: 24),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 200,
-                      child: _recentlyViewedBooks(),
-                    ),
-                    Text(
-                      "Explore our categories",
-                      style: GoogleFonts.aDLaMDisplay(fontSize: 24),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const BooksCategoryTile(),
-                  ],
-                )
-              ],
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          appBar: PreferredSize(
+              preferredSize: Size(double.infinity, MediaQuery.of(context).size.height * 0.21),
+              child: _appbarSection(now)),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: AppStyle.pagePadding.add(const EdgeInsets.only(top: 5)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Books Near You",
+                        style: GoogleFonts.aDLaMDisplay(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: _nearbyBookSection(),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        "Reacently viewed",
+                        style: GoogleFonts.aDLaMDisplay(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: _recentlyViewedBooks(),
+                      ),
+                      Text(
+                        "Explore our categories",
+                        style: GoogleFonts.aDLaMDisplay(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const BooksCategoryTile(),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            showModalBottomSheet<void>(
-              context: context,
-              builder: (context) => const AddBookForm(),
-              elevation: 1,
-              showDragHandle: true,
-              isDismissible: true,
-              enableDrag: false,
-              isScrollControlled: true,
-              sheetAnimationStyle: AnimationStyle(duration: const Duration(milliseconds: 300)),
-              backgroundColor: Colors.white,
-            );
-          },
-          backgroundColor: AppStyle.primaryColor,
-          child: const Icon(
-            Icons.add,
-            size: 30,
-            color: Colors.white,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (context) => const AddBookForm(),
+                elevation: 1,
+                showDragHandle: true,
+                isDismissible: true,
+                enableDrag: false,
+                isScrollControlled: true,
+                sheetAnimationStyle: AnimationStyle(duration: const Duration(milliseconds: 300)),
+                backgroundColor: Colors.white,
+              );
+            },
+            backgroundColor: AppStyle.primaryColor,
+            child: const Icon(
+              Icons.add,
+              size: 30,
+              color: Colors.white,
+            ),
           ),
         ),
       ),

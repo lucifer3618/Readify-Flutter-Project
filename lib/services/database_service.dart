@@ -454,4 +454,35 @@ class DatabaseService {
       },
     );
   }
+
+  // Get added book count
+  Stream<int> getAddedBooksCount() {
+    return _bookCollection
+        .where("ownerId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        return snapshot.docs.length;
+      },
+    );
+  }
+
+  // Get Send Book requests
+  Stream<int> getBookRequestsCount() {
+    return _notificationCollection
+        .where("senderId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        int count = 0;
+        for (var doc in snapshot.docs) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          if (data["type"] == "request") {
+            count += 1;
+          }
+        }
+        return count;
+      },
+    );
+  }
 }

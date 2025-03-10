@@ -157,26 +157,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(
                 height: 20,
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ProfileStatusCard(
-                      count: "10",
-                      text: "Added",
-                      imagePath: "assets/images/add.webp",
+                    StreamBuilder(
+                      stream: DatabaseService().getAddedBooksCount(),
+                      builder: (context, snapshot) {
+                        return ProfileStatusCard(
+                          count: snapshot.data.toString(),
+                          text: "Added",
+                          imagePath: "assets/images/add.webp",
+                        );
+                      },
                     ),
-                    ProfileStatusCard(
+                    const ProfileStatusCard(
                       count: "22",
                       text: "Exchanged",
                       imagePath: "assets/images/exchange.webp",
                     ),
-                    ProfileStatusCard(
-                      count: "20",
-                      text: "Requests",
-                      imagePath: "assets/images/delay.webp",
-                    )
+                    StreamBuilder(
+                        stream: DatabaseService().getBookRequestsCount(),
+                        builder: (context, snapshot) {
+                          return ProfileStatusCard(
+                            count: snapshot.data.toString(),
+                            text: "Requests",
+                            imagePath: "assets/images/delay.webp",
+                          );
+                        })
                   ],
                 ),
               ),

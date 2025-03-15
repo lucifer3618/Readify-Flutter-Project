@@ -501,4 +501,20 @@ class DatabaseService {
       },
     );
   }
+
+  // Get Stream of added books
+  Stream<List<Map<String, dynamic>>> getAddedBooks() {
+    return _bookCollection
+        .where("ownerId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        return snapshot.docs.map(
+          (doc) {
+            return doc.data() as Map<String, dynamic>;
+          },
+        ).toList();
+      },
+    );
+  }
 }

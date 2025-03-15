@@ -14,6 +14,7 @@ import 'package:readify/features/profile_screen/widgets/profile_status_card.dart
 import 'package:readify/services/auth_service.dart';
 import 'package:readify/services/database_service.dart';
 import 'package:readify/services/helper_function.dart';
+import 'package:readify/shared/widgets/widgets.dart';
 import 'package:readify/utils/app_style.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -228,9 +229,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     OptionItem(
-                      icon: FluentIcons.branch_request_16_filled,
-                      text: "Exchange Requests",
-                      onTap: () {},
+                      icon: FluentIcons.location_add_16_filled,
+                      text: "Update My Location",
+                      onTap: () {
+                        Widgets.showScanningPopup(context);
+                      },
                     ),
                     OptionItem(
                       icon: FluentIcons.sign_out_24_filled,

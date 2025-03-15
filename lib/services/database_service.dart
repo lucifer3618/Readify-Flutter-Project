@@ -485,4 +485,20 @@ class DatabaseService {
       },
     );
   }
+
+  // Get Favorite book stream
+  Stream<List<Map<String, dynamic>>> getBookmarkedBooks() {
+    return _bookCollection
+        .where("favorited_users", arrayContains: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        return snapshot.docs.map(
+          (doc) {
+            return doc.data() as Map<String, dynamic>;
+          },
+        ).toList();
+      },
+    );
+  }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart';
 import 'package:readify/features/auth_screens/login_screen.dart';
+import 'package:readify/features/profile_screen/bookmarks_screen.dart';
 import 'package:readify/features/profile_screen/widgets/currently_reading_book_card.dart';
 import 'package:readify/features/profile_screen/widgets/option_item.dart';
 import 'package:readify/features/profile_screen/widgets/profile_status_card.dart';
@@ -206,7 +207,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     OptionItem(
                       icon: FluentIcons.book_24_filled,
                       text: "Bookmarks",
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BookmarksScreen(),
+                            ));
+                      },
                     ),
                     OptionItem(
                       icon: FluentIcons.add_24_filled,

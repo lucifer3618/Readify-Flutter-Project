@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -124,6 +125,8 @@ class _HomePageState extends State<HomePage> {
 
   // Date formatters
   DateFormat dateFormat = DateFormat("d, MMMM");
+
+  final FocusScopeNode _searchFocusNode = FocusScopeNode();
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +254,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 25,
           ),
-          const CustomSearchBar(),
+          CustomSearchBar(
+            searchFocusNode: _searchFocusNode,
+          ),
           const SizedBox(
             height: 10,
           ),
@@ -286,17 +291,20 @@ class _HomePageState extends State<HomePage> {
                     child: SizedBox(
                       width: 90,
                       child: GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BookScreen(
-                                bookId: snapshot.data![index]["id"],
-                                bookName: snapshot.data![index]["name"],
-                                author: snapshot.data![index]["author"],
-                                imagePath: snapshot.data![index]["image_path"],
-                                currentOwnerId: snapshot.data![index]["ownerId"],
-                              ),
-                            )),
+                        onTap: () {
+                          _searchFocusNode.dispose();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookScreen(
+                                  bookId: snapshot.data![index]["id"],
+                                  bookName: snapshot.data![index]["name"],
+                                  author: snapshot.data![index]["author"],
+                                  imagePath: snapshot.data![index]["image_path"],
+                                  currentOwnerId: snapshot.data![index]["ownerId"],
+                                ),
+                              ));
+                        },
                         child: BookTile(
                           name: snapshot.data![index]["name"],
                           category: snapshot.data![index]["category"],

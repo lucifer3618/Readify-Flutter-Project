@@ -36,8 +36,9 @@ class ProfileImageWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: CachedNetworkImage(
-                imageUrl: snapshot.data!["profile_img"]["profile_url"] ??
-                    "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
+                imageUrl: snapshot.data!["profile_img"]["profile_url"] != ""
+                    ? snapshot.data!["profile_img"]["profile_url"]
+                    : "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
                 placeholder: (context, url) => SizedBox(
                     width: width - 5,
                     height: height - 5,

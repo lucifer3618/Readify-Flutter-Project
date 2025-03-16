@@ -50,13 +50,19 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            CachedNetworkImage(
-              imageUrl:
-                  "https://avatar.iran.liara.run/public?username=${widget.reiciverData["username"].toString().split(" ")[0]}",
-              placeholder: (context, url) => const SizedBox(
-                  width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              width: 40,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                imageUrl: widget.reiciverData["profile_img"]["profile_url"] != ""
+                    ? widget.reiciverData["profile_img"]["profile_url"]
+                    : "https://avatar.iran.liara.run/public?username=${widget.reiciverData["username"].toString().split(" ")[0]}",
+                placeholder: (context, url) => const SizedBox(
+                    width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(
               width: 10,

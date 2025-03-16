@@ -201,6 +201,7 @@ class _MessageScreenState extends State<MessageScreen> {
             );
           },
           text: data["username"],
+          profileImageURL: data["profile_img"]["profile_url"],
           reciverId: data["uid"],
         ),
       );

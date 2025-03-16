@@ -7,9 +7,14 @@ import 'package:readify/services/chat_service.dart';
 import 'package:readify/utils/app_style.dart';
 
 class UserTile extends StatelessWidget {
-  final String text, reciverId;
+  final String text, reciverId, profileImageURL;
   final Function() onTap;
-  const UserTile({super.key, required this.text, required this.onTap, required this.reciverId});
+  const UserTile(
+      {super.key,
+      required this.text,
+      required this.onTap,
+      required this.reciverId,
+      required this.profileImageURL});
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +30,23 @@ class UserTile extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100),
                   border: Border.all(width: 3, color: AppStyle.primaryDark)),
-              child: CachedNetworkImage(
-                imageUrl: "https://avatar.iran.liara.run/public?username=${text.split(" ")[0]}",
-                placeholder: (context, url) => const SizedBox(
-                    width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+              child: SizedBox(
                 width: 55,
+                height: 50,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: CachedNetworkImage(
+                    imageUrl: profileImageURL != ""
+                        ? profileImageURL
+                        : "https://avatar.iran.liara.run/public?username=${text.split(" ")[0]}",
+                    placeholder: (context, url) => const SizedBox(
+                        width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    width: 55,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
             const SizedBox(

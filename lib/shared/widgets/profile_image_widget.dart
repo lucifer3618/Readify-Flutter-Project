@@ -38,7 +38,7 @@ class ProfileImageWidget extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: snapshot.data!["profile_img"]["profile_url"] != ""
                     ? snapshot.data!["profile_img"]["profile_url"]
-                    : "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
+                    : "https://ui-avatars.com/api/?background=random&name=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
                 placeholder: (context, url) => SizedBox(
                     width: width - 5,
                     height: height - 5,

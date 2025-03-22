@@ -38,7 +38,7 @@ class UserTile extends StatelessWidget {
                   child: CachedNetworkImage(
                     imageUrl: profileImageURL != ""
                         ? profileImageURL
-                        : "https://avatar.iran.liara.run/public?username=${text.split(" ")[0]}",
+                        : "https://ui-avatars.com/api/?background=random&name=${text.split(" ")[0]}",
                     placeholder: (context, url) => const SizedBox(
                         width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
                     errorWidget: (context, url, error) => const Icon(Icons.error),

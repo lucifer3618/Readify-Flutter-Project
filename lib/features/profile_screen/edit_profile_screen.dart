@@ -109,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                                         ["profile_url"] !=
                                                     ""
                                                 ? snapshot.data!["profile_img"]["profile_url"]
-                                                : "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName.toString().split(" ")[0]}",
+                                                : "https://ui-avatars.com/api/?background=random&name=${FirebaseAuth.instance.currentUser!.displayName.toString().split(" ")[0]}",
                                             placeholder: (context, url) => const SizedBox(
                                                 width: 50,
                                                 height: 50,

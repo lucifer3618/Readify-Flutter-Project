@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
     precacheImage(
       NetworkImage(
-          "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(' ')[0]}"),
+          "https://ui-avatars.com/api/?background=random&name=${FirebaseAuth.instance.currentUser!.displayName!.split(' ')[0]}"),
       context,
     );
   }

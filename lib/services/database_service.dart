@@ -29,6 +29,7 @@ class DatabaseService {
           "uid": uid,
           "username": username,
           "email": email,
+          "mobile": "",
           "profile_img": {"file_path": "", "profile_url": ""},
           "chatUsers": [],
           "fcm_token": "",
@@ -413,7 +414,7 @@ class DatabaseService {
 
       QuerySnapshot bookSnapshot = await FirebaseFirestore.instance.collection('books').get();
 
-      return bookSnapshot.docs.where((book) {
+      List<Map<String, dynamic>> books = bookSnapshot.docs.where((book) {
         Map<String, dynamic> bookData = book.data() as Map<String, dynamic>;
         if (bookData['location'] != null) {
           GeoPoint bookLocation = bookData['location'];
@@ -429,6 +430,10 @@ class DatabaseService {
         );
         return bookData;
       }).toList();
+
+      books.sort((a, b) => a['distance'].compareTo(b['distance']));
+
+      return books;
     });
   }
 
@@ -516,5 +521,18 @@ class DatabaseService {
         ).toList();
       },
     );
+  }
+
+  // Update User Data
+  bool updateUserData(String username, String mobile) {
+    try {
+      _userCollection.doc(FirebaseAuth.instance.currentUser!.uid).update({
+        "username": username,
+        "mobile": mobile,
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

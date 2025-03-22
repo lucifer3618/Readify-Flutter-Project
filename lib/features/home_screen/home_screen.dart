@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:readify/features/book_screen/book_screen.dart';
 import 'package:readify/features/home_screen/add_book_form.dart';
 import 'package:readify/features/home_screen/widgets/book_tile.dart';
@@ -14,6 +15,7 @@ import 'package:readify/features/home_screen/widgets/search_bar.dart';
 import 'package:readify/features/message_screen/message_screen.dart';
 import 'package:readify/features/profile_screen/profile_screen.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
+import 'package:readify/providers/user_provider.dart';
 import 'package:readify/services/database_service.dart';
 import 'package:readify/shared/widgets/profile_image_widget.dart';
 import 'package:readify/utils/app_style.dart';
@@ -228,13 +230,17 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
-                    child: AutoSizeText(
-                      "Hello, ${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]} !",
-                      style: GoogleFonts.aDLaMDisplay(
-                        fontSize: 30,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    child: Consumer<UserProvider>(
+                      builder: (context, userProvider, child) {
+                        return AutoSizeText(
+                          "Hello, ${userProvider.user?.displayName?.split(" ")[0] ?? "Guest"} !",
+                          style: GoogleFonts.aDLaMDisplay(
+                            fontSize: 30,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   Text(
@@ -335,8 +341,8 @@ class _HomePageState extends State<HomePage> {
       stream: DatabaseService().getNearbyBooks(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(
-            child: Text(snapshot.error.toString()),
+          return const Center(
+            child: Text("Loading..."),
           );
         } else if (!snapshot.hasData) {
           return const Center(

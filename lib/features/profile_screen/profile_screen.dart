@@ -1,19 +1,19 @@
-import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 import 'package:readify/features/auth_screens/login_screen.dart';
 import 'package:readify/features/profile_screen/added_book_screen.dart';
 import 'package:readify/features/profile_screen/bookmarks_screen.dart';
+import 'package:readify/features/profile_screen/edit_profile_screen.dart';
 import 'package:readify/features/profile_screen/widgets/currently_reading_book_card.dart';
 import 'package:readify/features/profile_screen/widgets/option_item.dart';
 import 'package:readify/features/profile_screen/widgets/profile_status_card.dart';
+import 'package:readify/providers/user_provider.dart';
 import 'package:readify/services/auth_service.dart';
 import 'package:readify/services/database_service.dart';
-import 'package:readify/services/helper_function.dart';
+import 'package:readify/shared/widgets/profile_image_widget.dart';
 import 'package:readify/shared/widgets/widgets.dart';
 import 'package:readify/utils/app_style.dart';
 
@@ -25,33 +25,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  File? image;
-
-  // Set Imagge
-  setImage() async {
-    Map<String, dynamic> user =
-        await DatabaseService().getUserById(FirebaseAuth.instance.currentUser!.uid);
-    String profileImageId = HelperFunction().generateRandomProfileImageId(20);
-    await HelperFunction().pickImage().then(
-      (value) async {
-        if (value != null) {
-          setState(() {
-            image = value;
-          });
-          if (image != null) {
-            String extention = extension(image!.path);
-            await DatabaseService().uploadProfileImageToSupaBase(
-              image!,
-              "profile_image/$profileImageId$extention",
-              user["profile_img"]["file_path"],
-            );
-            DatabaseService().updateUserProfileImageLink("$profileImageId$extention");
-          }
-        }
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +37,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfileScreen(),
+                    ));
+              },
               child: const Icon(Icons.mode_edit_outline_rounded),
             ),
           )
@@ -75,83 +54,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: AppStyle.pagePadding,
+          padding: AppStyle.pagePadding.add(const EdgeInsets.only(top: 15)),
           child: Column(
             children: [
-              GestureDetector(
-                onTap: () {
-                  setImage();
-                },
-                child: SizedBox(
-                  width: 100,
-                  height: 113,
-                  child: Stack(
-                    children: [
-                      image == null
-                          ? FutureBuilder(
-                              future: DatabaseService()
-                                  .getUserById(FirebaseAuth.instance.currentUser!.uid),
-                              builder: (context, snapshot) {
-                                return SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: ClipOval(
-                                    child: CachedNetworkImage(
-                                      useOldImageOnUrlChange: true,
-                                      imageUrl: snapshot.data!["profile_img"]["profile_url"] != ""
-                                          ? snapshot.data!["profile_img"]["profile_url"]
-                                          : "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName.toString().split(" ")[0]}",
-                                      placeholder: (context, url) => const SizedBox(
-                                          width: 50,
-                                          height: 50,
-                                          child: Center(child: CircularProgressIndicator())),
-                                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              },
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: Image.file(
-                                image!,
-                                fit: BoxFit.cover,
-                                height: 100,
-                                width: 100,
-                              ),
-                            ),
-                      Positioned(
-                        bottom: 0,
-                        right: 34.5,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                              color: AppStyle.primaryColor,
-                              borderRadius: BorderRadius.circular(100),
-                              border: Border.all(color: Colors.white, width: 2)),
-                          child: const Center(
-                            child: Icon(
-                              FluentIcons.edit_16_filled,
-                              size: 15,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+              const SizedBox(
+                width: 100,
+                height: 100,
+                child: Stack(
+                  children: [
+                    ProfileImageWidget(
+                      width: 100,
+                      height: 100,
+                      borderColor: Colors.white,
+                      borderWidth: 0,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                FirebaseAuth.instance.currentUser!.displayName!,
-                style: GoogleFonts.firaSans(fontSize: 20, fontWeight: FontWeight.bold),
+              Consumer<UserProvider>(
+                builder: (context, userProvider, child) {
+                  return Text(
+                    userProvider.user?.displayName ?? "Guest",
+                    style: GoogleFonts.firaSans(fontSize: 20, fontWeight: FontWeight.bold),
+                  );
+                },
               ),
               Text(
                 FirebaseAuth.instance.currentUser!.email!,
@@ -176,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     const ProfileStatusCard(
-                      count: "22",
+                      count: "0",
                       text: "Exchanged",
                       imagePath: "assets/images/exchange.webp",
                     ),

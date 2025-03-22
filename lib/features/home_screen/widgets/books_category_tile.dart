@@ -89,6 +89,25 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
           return const Center(
             child: Text("No data to display!"),
           );
+        } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+          return Container(
+            width: double.infinity,
+            child: Column(
+              children: [
+                Image.asset(
+                  "assets/images/empty-cateogry.png",
+                  width: 100,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                const Text(
+                  "This category is empty!",
+                  style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                )
+              ],
+            ),
+          );
         } else {
           return Skeletonizer(
             enabled: snapshot.connectionState == ConnectionState.waiting,

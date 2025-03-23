@@ -7,13 +7,15 @@ class UserProvider extends ChangeNotifier {
   User? get user => _user;
 
   Future<void> refreshUser() async {
-    await FirebaseAuth.instance.currentUser!.reload();
-    _user = FirebaseAuth.instance.currentUser;
-    notifyListeners(); // Notify UI to rebuild with updated data
+    FirebaseAuth.instance.authStateChanges().listen((User? updatedUser) {
+      _user = updatedUser;
+      notifyListeners(); // Notify UI to rebuild with updated data
+    });
   }
 
   Future<void> updateDisplayName(String newName) async {
     await FirebaseAuth.instance.currentUser!.updateDisplayName(newName);
-    await refreshUser(); // Refresh data and update UI
+    await FirebaseAuth.instance.currentUser!.reload(); // Reload user data
+    await refreshUser(); // Refresh data and update UI // Refresh data and update UI
   }
 }

@@ -1,9 +1,12 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:readify/features/auth_screens/widgets/login_icon_button.dart';
 import 'package:readify/features/home_screen/home_screen.dart';
 import 'package:readify/services/auth_service.dart';
+import 'package:readify/services/database_service.dart';
 import 'package:readify/services/helper_function.dart';
 import 'package:readify/services/notification_service.dart';
 import 'package:readify/shared/widgets/password_input_field.dart';
@@ -188,7 +191,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               height: 20,
                             ),
                             LoginIconButton(
-                                onTap: () {},
+                                onTap: () => _signUpWithGoogle(),
                                 buttonText: "Sign Up with Google",
                                 icon: "assets/images/google.png")
                           ],
@@ -230,6 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             );
             NotificationService.updateFCMToken();
+            DatabaseService().updateUserLocation();
           }
         } else {
           // Show error message if registration fails
@@ -255,5 +259,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _hasError = true;
       });
     }
+  }
+
+  // Sign up with google
+  Future _signUpWithGoogle() async {
+    User? user = await AuthService().signInWithGoogle();
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (user == null && mounted) {
+      Widgets.showSnackbar(
+          context, Colors.red, "Failed to Sign up with Google!", ContentType.failure);
+    } else {
+      await DatabaseService().savingUserData(user!.uid, user.displayName!, user.email!);
+    }
+
+    QuerySnapshot snapshot =
+        await DatabaseService().savingUserData(user!.uid, user.displayName!, user.email!);
+    await HelperFunction.setUserLoginStatus(true);
+    await HelperFunction.setUserEmail(snapshot.docs[0]["email"]);
+    await HelperFunction.setUserName(snapshot.docs[0]["username"]);
+
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your new screen
+        (Route<dynamic> route) => false, // This removes all previous routes
+      );
+      NotificationService.updateFCMToken();
+      Widgets.showSnackbar(context, Colors.green, "Successfully logged in!", ContentType.success);
+      DatabaseService().updateUserLocation();
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 }

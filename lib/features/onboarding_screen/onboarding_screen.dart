@@ -7,6 +7,7 @@ import 'package:readify/features/onboarding_screen/model/onboarding_screen_model
 import 'package:readify/features/onboarding_screen/widgets/onboarding_screen_layout.dart';
 import 'package:readify/features/onboarding_screen/widgets/onbording_bottom_navbar.dart';
 import 'package:readify/features/onboarding_screen/widgets/page_indicator.dart';
+import 'package:readify/services/location_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -43,8 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 });
               },
               itemBuilder: (context, index) {
-                OnboardingScreenModel onbordingScreen =
-                    onbordingScreensData[index];
+                OnboardingScreenModel onbordingScreen = onbordingScreensData[index];
                 return OnboardingScreenLayout(
                   title: onbordingScreen.title,
                   description: onbordingScreen.description,
@@ -66,19 +66,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         isLastPage: _selectedIndex == onbordingScreensData.length - 1,
         onPress: () {
           setState(() {
-            _pageController.nextPage(
-                duration: Durations.medium2, curve: Curves.easeInOut);
+            _pageController.nextPage(duration: Durations.medium2, curve: Curves.easeInOut);
           });
         },
-        onPressEnd: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return const LoginScreen();
-              },
-            ),
-          );
+        onPressEnd: () async {
+          // Get Location Permission
+          await LocationService().reqestPermission(context);
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return const LoginScreen();
+                },
+              ),
+            );
+          }
         },
       ),
     );

@@ -1,13 +1,20 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:readify/features/auth_screens/login_screen.dart';
+import 'package:readify/features/profile_screen/added_book_screen.dart';
+import 'package:readify/features/profile_screen/bookmarks_screen.dart';
+import 'package:readify/features/profile_screen/edit_profile_screen.dart';
 import 'package:readify/features/profile_screen/widgets/currently_reading_book_card.dart';
 import 'package:readify/features/profile_screen/widgets/option_item.dart';
 import 'package:readify/features/profile_screen/widgets/profile_status_card.dart';
+import 'package:readify/providers/user_provider.dart';
 import 'package:readify/services/auth_service.dart';
+import 'package:readify/services/database_service.dart';
+import 'package:readify/shared/widgets/profile_image_widget.dart';
+import 'package:readify/shared/widgets/widgets.dart';
 import 'package:readify/utils/app_style.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -30,7 +37,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EditProfileScreen(),
+                    ));
+              },
               child: const Icon(Icons.mode_edit_outline_rounded),
             ),
           )
@@ -41,53 +54,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: AppStyle.pagePadding,
+          padding: AppStyle.pagePadding.add(const EdgeInsets.only(top: 15)),
           child: Column(
             children: [
-              Stack(
-                children: [
-                  SizedBox(
-                    width: 100,
-                    height: 120,
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName.toString().split(" ")[0]}",
-                      placeholder: (context, url) => const SizedBox(
-                          width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
+              const SizedBox(
+                width: 100,
+                height: 100,
+                child: Stack(
+                  children: [
+                    ProfileImageWidget(
                       width: 100,
+                      height: 100,
+                      borderColor: Colors.white,
+                      borderWidth: 0,
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 37.5,
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                            color: AppStyle.primaryColor,
-                            borderRadius: BorderRadius.circular(100),
-                            border: Border.all(color: Colors.white, width: 2)),
-                        child: const Center(
-                          child: Icon(
-                            FluentIcons.edit_16_filled,
-                            size: 15,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              Text(
-                FirebaseAuth.instance.currentUser!.displayName!,
-                style: GoogleFonts.firaSans(fontSize: 20, fontWeight: FontWeight.bold),
+              Consumer<UserProvider>(
+                builder: (context, userProvider, child) {
+                  return Text(
+                    userProvider.user?.displayName ?? "Guest",
+                    style: GoogleFonts.firaSans(fontSize: 20, fontWeight: FontWeight.bold),
+                  );
+                },
               ),
               Text(
                 FirebaseAuth.instance.currentUser!.email!,
@@ -96,26 +89,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(
                 height: 20,
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ProfileStatusCard(
-                      count: "10",
-                      text: "Added",
-                      imagePath: "assets/images/add.webp",
+                    StreamBuilder(
+                      stream: DatabaseService().getAddedBooksCount(),
+                      builder: (context, snapshot) {
+                        return ProfileStatusCard(
+                          count: snapshot.data.toString(),
+                          text: "Added",
+                          imagePath: "assets/images/add.webp",
+                        );
+                      },
                     ),
-                    ProfileStatusCard(
-                      count: "22",
+                    const ProfileStatusCard(
+                      count: "0",
                       text: "Exchanged",
                       imagePath: "assets/images/exchange.webp",
                     ),
-                    ProfileStatusCard(
-                      count: "20",
-                      text: "Requests",
-                      imagePath: "assets/images/delay.webp",
-                    )
+                    StreamBuilder(
+                        stream: DatabaseService().getBookRequestsCount(),
+                        builder: (context, snapshot) {
+                          return ProfileStatusCard(
+                            count: snapshot.data.toString(),
+                            text: "Requests",
+                            imagePath: "assets/images/delay.webp",
+                          );
+                        })
                   ],
                 ),
               ),
@@ -136,17 +138,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     OptionItem(
                       icon: FluentIcons.book_24_filled,
                       text: "Bookmarks",
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BookmarksScreen(),
+                            ));
+                      },
                     ),
                     OptionItem(
                       icon: FluentIcons.add_24_filled,
                       text: "Added Books",
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddedBooksScreen(),
+                            ));
+                      },
                     ),
                     OptionItem(
-                      icon: FluentIcons.branch_request_16_filled,
-                      text: "Exchange Requests",
-                      onTap: () {},
+                      icon: FluentIcons.location_add_16_filled,
+                      text: "Update My Location",
+                      onTap: () {
+                        Widgets.showScanningPopup(context);
+                      },
                     ),
                     OptionItem(
                       icon: FluentIcons.sign_out_24_filled,

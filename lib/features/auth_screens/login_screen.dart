@@ -246,6 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
             NotificationService.updateFCMToken();
             Widgets.showSnackbar(
                 context, Colors.green, "Logged in Successfully!", ContentType.success);
+            DatabaseService().updateUserLocation();
           }
         } else {
           if (mounted) {
@@ -269,6 +270,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (user == null && mounted) {
       Widgets.showSnackbar(
           context, Colors.red, "Failed to Sign in with Google!", ContentType.failure);
+      setState(() {
+        _isLoading = false;
+      });
     } else {
       await DatabaseService().savingUserData(user!.uid, user.displayName!, user.email!);
     }
@@ -287,9 +291,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       NotificationService.updateFCMToken();
       Widgets.showSnackbar(context, Colors.green, "Successfully logged in!", ContentType.success);
+      DatabaseService().updateUserLocation();
     }
     setState(() {
-      _isLoading = true;
+      _isLoading = false;
     });
   }
 }

@@ -1,12 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:readify/features/book_screen/book_screen.dart';
 import 'package:readify/features/home_screen/add_book_form.dart';
 import 'package:readify/features/home_screen/widgets/book_tile.dart';
@@ -16,8 +15,11 @@ import 'package:readify/features/home_screen/widgets/search_bar.dart';
 import 'package:readify/features/message_screen/message_screen.dart';
 import 'package:readify/features/profile_screen/profile_screen.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
+import 'package:readify/providers/user_provider.dart';
 import 'package:readify/services/database_service.dart';
+import 'package:readify/shared/widgets/profile_image_widget.dart';
 import 'package:readify/utils/app_style.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    FocusScope.of(context).unfocus();
   }
 
   @override
@@ -117,7 +120,7 @@ class _HomePageState extends State<HomePage> {
     super.didChangeDependencies();
     precacheImage(
       NetworkImage(
-          "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(' ')[0]}"),
+          "https://ui-avatars.com/api/?background=random&name=${FirebaseAuth.instance.currentUser!.displayName!.split(' ')[0]}"),
       context,
     );
   }
@@ -125,83 +128,88 @@ class _HomePageState extends State<HomePage> {
   // Date formatters
   DateFormat dateFormat = DateFormat("d, MMMM");
 
+  final FocusScopeNode _searchFocusNode = FocusScopeNode();
+
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     return SafeArea(
-      child: Scaffold(
-        appBar: PreferredSize(
-            preferredSize: Size(double.infinity, MediaQuery.of(context).size.height * 0.21),
-            child: _appbarSection(now)),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: AppStyle.pagePadding.add(const EdgeInsets.only(top: 5)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Books Near You",
-                      style: GoogleFonts.aDLaMDisplay(fontSize: 24),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 200,
-                      child: _nearbyBookSection(),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      "Reacently viewed",
-                      style: GoogleFonts.aDLaMDisplay(fontSize: 24),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 200,
-                      child: _recentlyViewedBooks(),
-                    ),
-                    Text(
-                      "Explore our categories",
-                      style: GoogleFonts.aDLaMDisplay(fontSize: 24),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const BooksCategoryTile(),
-                  ],
-                )
-              ],
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          appBar: PreferredSize(
+              preferredSize: Size(double.infinity, MediaQuery.of(context).size.height * 0.21),
+              child: _appbarSection(now)),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: AppStyle.pagePadding.add(const EdgeInsets.only(top: 5)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Books Near You",
+                        style: GoogleFonts.aDLaMDisplay(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: _nearbyBookSection(),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        "Reacently viewed",
+                        style: GoogleFonts.aDLaMDisplay(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: _recentlyViewedBooks(),
+                      ),
+                      Text(
+                        "Explore our categories",
+                        style: GoogleFonts.aDLaMDisplay(fontSize: 24),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const BooksCategoryTile(),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showModalBottomSheet<void>(
-              context: context,
-              builder: (context) => const AddBookForm(),
-              elevation: 1,
-              showDragHandle: true,
-              isDismissible: true,
-              enableDrag: false,
-              isScrollControlled: true,
-              sheetAnimationStyle: AnimationStyle(duration: const Duration(milliseconds: 300)),
-              backgroundColor: Colors.white,
-            );
-          },
-          backgroundColor: AppStyle.primaryColor,
-          child: const Icon(
-            Icons.add,
-            size: 30,
-            color: Colors.white,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (context) => const AddBookForm(),
+                elevation: 1,
+                showDragHandle: true,
+                isDismissible: true,
+                enableDrag: false,
+                isScrollControlled: true,
+                sheetAnimationStyle: AnimationStyle(duration: const Duration(milliseconds: 300)),
+                backgroundColor: Colors.white,
+              );
+            },
+            backgroundColor: AppStyle.primaryColor,
+            child: const Icon(
+              Icons.add,
+              size: 30,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -222,13 +230,17 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.7,
-                    child: AutoSizeText(
-                      "Hello, ${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]} !",
-                      style: GoogleFonts.aDLaMDisplay(
-                        fontSize: 30,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    child: Consumer<UserProvider>(
+                      builder: (context, userProvider, child) {
+                        return AutoSizeText(
+                          "Hello, ${userProvider.user?.displayName?.split(" ")[0] ?? "Guest"} !",
+                          style: GoogleFonts.aDLaMDisplay(
+                            fontSize: 30,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        );
+                      },
                     ),
                   ),
                   Text(
@@ -237,27 +249,20 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ),
-              Container(
+              const ProfileImageWidget(
                 width: 55,
                 height: 55,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: AppStyle.sunsetOrange, width: 3)),
-                child: CachedNetworkImage(
-                  imageUrl:
-                      "https://avatar.iran.liara.run/public?username=${FirebaseAuth.instance.currentUser!.displayName!.split(" ")[0]}",
-                  placeholder: (context, url) => const SizedBox(
-                      width: 50, height: 50, child: Center(child: CircularProgressIndicator())),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  width: 60,
-                ),
-              ),
+                borderColor: AppStyle.sunsetOrange,
+                borderWidth: 3,
+              )
             ],
           ),
           const SizedBox(
             height: 25,
           ),
-          const CustomSearchBar(),
+          CustomSearchBar(
+            searchFocusNode: _searchFocusNode,
+          ),
           const SizedBox(
             height: 10,
           ),
@@ -271,11 +276,7 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
       stream: DatabaseService().getRecentlyVisitedBooks(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           return Center(
             child: Text(snapshot.error.toString()),
           );
@@ -285,36 +286,42 @@ class _HomePageState extends State<HomePage> {
           );
         } else {
           if (snapshot.data!.isNotEmpty) {
-            return ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: SizedBox(
-                    width: 90,
-                    child: GestureDetector(
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookScreen(
-                              bookId: snapshot.data![index]["id"],
-                              bookName: snapshot.data![index]["name"],
-                              author: snapshot.data![index]["author"],
-                              imagePath: snapshot.data![index]["image_path"],
-                              currentOwnerId: snapshot.data![index]["ownerId"],
-                            ),
-                          )),
-                      child: BookTile(
-                        name: snapshot.data![index]["name"],
-                        category: snapshot.data![index]["category"],
-                        imageURL: snapshot.data![index]["image_path"],
+            return Skeletonizer(
+              enabled: snapshot.connectionState == ConnectionState.waiting,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: SizedBox(
+                      width: 90,
+                      child: GestureDetector(
+                        onTap: () {
+                          _searchFocusNode.dispose();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookScreen(
+                                  bookId: snapshot.data![index]["id"],
+                                  bookName: snapshot.data![index]["name"],
+                                  author: snapshot.data![index]["author"],
+                                  imagePath: snapshot.data![index]["image_path"],
+                                  currentOwnerId: snapshot.data![index]["ownerId"],
+                                ),
+                              ));
+                        },
+                        child: BookTile(
+                          name: snapshot.data![index]["name"],
+                          category: snapshot.data![index]["category"],
+                          imageURL: snapshot.data![index]["image_path"],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-              itemCount: snapshot.data!.length,
+                  );
+                },
+                itemCount: snapshot.data!.length,
+              ),
             );
           } else {
             return Center(
@@ -331,57 +338,60 @@ class _HomePageState extends State<HomePage> {
   // Book near you section
   Widget _nearbyBookSection() {
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection("books").limit(5).snapshots(),
+      stream: DatabaseService().getNearbyBooks(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.hasError) {
           return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text(snapshot.error.toString()),
+            child: Text("Loading..."),
           );
         } else if (!snapshot.hasData) {
           return const Center(
-            child: Text("No data to display!"),
+            child: SizedBox(
+              width: 50,
+              height: 50,
+              child: CircularProgressIndicator(),
+            ),
           );
         } else {
-          return SizedBox(
-            height: 250,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 15),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookScreen(
-                            bookId: snapshot.data!.docs[index]["id"],
-                            bookName: snapshot.data!.docs[index]["name"],
-                            author: snapshot.data!.docs[index]["author"],
-                            imagePath: snapshot.data!.docs[index]["image_path"],
-                            currentOwnerId: snapshot.data!.docs[index]["currentOwnerId"],
+          return Skeletonizer(
+            enabled: snapshot.connectionState == ConnectionState.waiting,
+            child: SizedBox(
+              height: 250,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookScreen(
+                              bookId: snapshot.data![index]["id"],
+                              bookName: snapshot.data![index]["name"],
+                              author: snapshot.data![index]["author"],
+                              imagePath: snapshot.data![index]["image_path"],
+                              currentOwnerId: snapshot.data![index]["currentOwnerId"],
+                            ),
                           ),
-                        ),
-                      );
-                      DatabaseService().setRecentlyVisitedBook(
-                        snapshot.data!.docs[index]["id"],
-                        snapshot.data!.docs[index]["name"],
-                        snapshot.data!.docs[index]["author"],
-                        snapshot.data!.docs[index]["image_path"],
-                        snapshot.data!.docs[index]["currentOwnerId"],
-                        snapshot.data!.docs[index]["category"],
-                      );
-                    },
-                    child: NearbyBookCard(bookData: snapshot.data!.docs[index].data()),
-                  ),
-                );
-              },
-              itemCount: snapshot.data!.docs.length,
+                        );
+                        DatabaseService().setRecentlyVisitedBook(
+                          snapshot.data![index]["id"],
+                          snapshot.data![index]["name"],
+                          snapshot.data![index]["author"],
+                          snapshot.data![index]["image_path"],
+                          snapshot.data![index]["currentOwnerId"],
+                          snapshot.data![index]["category"],
+                        );
+                      },
+                      child: NearbyBookCard(bookData: snapshot.data![index]),
+                    ),
+                  );
+                },
+                itemCount: snapshot.data!.length,
+              ),
             ),
           );
         }

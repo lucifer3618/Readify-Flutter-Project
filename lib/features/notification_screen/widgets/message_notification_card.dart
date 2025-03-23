@@ -72,7 +72,7 @@ class _MessageNotificationCardState extends State<MessageNotificationCard> {
               Stack(children: [
                 CachedNetworkImage(
                   imageUrl:
-                      "https://avatar.iran.liara.run/public?username=${widget.senderData["username"].split(" ")[0]}",
+                      "https://ui-avatars.com/api/?background=random&name=${widget.senderData["username"].split(" ")[0]}",
                   placeholder: (context, url) => const SizedBox(
                       width: 40, height: 40, child: Center(child: CircularProgressIndicator())),
                   errorWidget: (context, url, error) => const Icon(Icons.error),

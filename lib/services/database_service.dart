@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:readify/services/helper_function.dart';
+import 'package:readify/services/location_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DatabaseService {
@@ -27,9 +29,11 @@ class DatabaseService {
           "uid": uid,
           "username": username,
           "email": email,
-          "profile_img": "",
+          "mobile": "",
+          "profile_img": {"file_path": "", "profile_url": ""},
           "chatUsers": [],
           "fcm_token": "",
+          "location": null,
         });
       } else {
         // Update the last_login if the document doesn't exist
@@ -48,6 +52,15 @@ class DatabaseService {
     return snapshot;
   }
 
+  // Getting User data from database
+  Stream<Map<String, dynamic>> getUserStreamById(String uid) {
+    return _userCollection.doc(uid).snapshots().map(
+      (doc) {
+        return doc.data() as Map<String, dynamic>;
+      },
+    );
+  }
+
   // Getting user Data from email
   Future<QuerySnapshot> gettingUserDataByEmail(String email) async {
     QuerySnapshot snapshot = await _userCollection.where("email", isEqualTo: email).limit(1).get();
@@ -57,6 +70,7 @@ class DatabaseService {
   // Store book in database
   Future savingBookData(String bookId, String bookName, String isbn, String authorName,
       String imagePath, String category) async {
+    Position pos = await LocationService().getCurrentPosition();
     await _bookCollection.doc(bookId).set({
       "id": bookId,
       "name": bookName,
@@ -65,6 +79,7 @@ class DatabaseService {
       "image_path": imagePath,
       "category": category,
       "favorited_users": [],
+      "location": GeoPoint(pos.latitude, pos.longitude),
       "ownerId": FirebaseAuth.instance.currentUser!.uid,
       "currentOwnerId": FirebaseAuth.instance.currentUser!.uid,
       "timestamp": Timestamp.now(),
@@ -74,7 +89,35 @@ class DatabaseService {
 
   // Upload image to Supabase storage
   Future uploadImageToSupaBase(File image, String path) async {
-    await Supabase.instance.client.storage.from('images').upload(path, image);
+    log(path);
+    await Supabase.instance.client.storage.from('images').upload(
+          path,
+          image,
+          fileOptions: const FileOptions(
+            upsert: true,
+          ),
+        );
+  }
+
+  //Upload image to Supabase storage Future
+  uploadProfileImageToSupaBase(File image, String path, String filePathOnDB) async {
+    if (filePathOnDB == "") {
+      await Supabase.instance.client.storage.from('images').upload(path, image);
+    } else {
+      await Supabase.instance.client.storage.from('images').remove([
+        filePathOnDB,
+      ]);
+      await Supabase.instance.client.storage.from('images').upload(path, image);
+    }
+  }
+
+  // Update User profile image link in Firebase
+  void updateUserProfileImageLink(String path) async {
+    String fileURL =
+        Supabase.instance.client.storage.from("images").getPublicUrl("profile_image/$path");
+    await _userCollection.doc(FirebaseAuth.instance.currentUser!.uid).update({
+      "profile_img": {"profile_url": fileURL, "file_path": "profile_image/$path"}
+    });
   }
 
   // Get spcific user using id
@@ -347,5 +390,149 @@ class DatabaseService {
         ).toList();
       },
     );
+  }
+
+  // Update Users Position
+  Future<void> updateUserLocation() async {
+    Position pos = await LocationService().getCurrentPosition();
+    try {
+      _userCollection.doc(FirebaseAuth.instance.currentUser!.uid).update({
+        "location": GeoPoint(pos.latitude, pos.longitude),
+      });
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  // Get Nearby book Stream
+  Stream<List<Map<String, dynamic>>> getNearbyBooks() {
+    return _userCollection
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .asyncMap((userSnapshot) async {
+      GeoPoint userLocation = userSnapshot['location'];
+
+      QuerySnapshot bookSnapshot = await FirebaseFirestore.instance.collection('books').get();
+
+      List<Map<String, dynamic>> books = bookSnapshot.docs.where((book) {
+        Map<String, dynamic> bookData = book.data() as Map<String, dynamic>;
+        if (bookData['location'] != null) {
+          GeoPoint bookLocation = bookData['location'];
+          double distance = LocationService().calculateDistance(userLocation, bookLocation);
+          return distance <= 5.0;
+        }
+        return false;
+      }).map((book) {
+        Map<String, dynamic> bookData = book.data() as Map<String, dynamic>;
+        bookData['distance'] = LocationService().calculateDistance(
+          userLocation,
+          bookData['location'],
+        );
+        return bookData;
+      }).toList();
+
+      books.sort((a, b) => a['distance'].compareTo(b['distance']));
+
+      return books;
+    });
+  }
+
+  // Search books
+  Stream<List<Map<String, dynamic>>> searchBooksStream(String searchText) {
+    return _bookCollection.snapshots().map(
+      (snapshot) {
+        List<Map<String, dynamic>> books = snapshot.docs.map(
+          (doc) {
+            final book = doc.data() as Map<String, dynamic>;
+            return book;
+          },
+        ).toList();
+
+        if (searchText.isNotEmpty) {
+          return books.where(
+            (book) {
+              return book['name'].toString().toLowerCase().contains(searchText.toLowerCase());
+            },
+          ).toList();
+        }
+        return books;
+      },
+    );
+  }
+
+  // Get added book count
+  Stream<int> getAddedBooksCount() {
+    return _bookCollection
+        .where("ownerId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        return snapshot.docs.length;
+      },
+    );
+  }
+
+  // Get Send Book requests
+  Stream<int> getBookRequestsCount() {
+    return _notificationCollection
+        .where("senderId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        int count = 0;
+        for (var doc in snapshot.docs) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          if (data["type"] == "request") {
+            count += 1;
+          }
+        }
+        return count;
+      },
+    );
+  }
+
+  // Get Favorite book stream
+  Stream<List<Map<String, dynamic>>> getBookmarkedBooks() {
+    return _bookCollection
+        .where("favorited_users", arrayContains: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        return snapshot.docs.map(
+          (doc) {
+            return doc.data() as Map<String, dynamic>;
+          },
+        ).toList();
+      },
+    );
+  }
+
+  // Get Stream of added books
+  Stream<List<Map<String, dynamic>>> getAddedBooks() {
+    return _bookCollection
+        .where("ownerId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map(
+      (snapshot) {
+        return snapshot.docs.map(
+          (doc) {
+            return doc.data() as Map<String, dynamic>;
+          },
+        ).toList();
+      },
+    );
+  }
+
+  // Update User Data
+  bool updateUserData(String username, String mobile) {
+    try {
+      _userCollection.doc(FirebaseAuth.instance.currentUser!.uid).update({
+        "username": username,
+        "mobile": mobile,
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

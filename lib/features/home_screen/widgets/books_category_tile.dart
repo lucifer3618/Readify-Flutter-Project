@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:readify/features/book_screen/book_screen.dart';
 import 'package:readify/services/database_service.dart';
 import 'package:readify/utils/app_style.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class BooksCategoryTile extends StatefulWidget {
   const BooksCategoryTile({super.key});
@@ -66,7 +67,7 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
         const SizedBox(
           height: 30,
         ),
-        _booksNearYouSection(),
+        _booksCategorySection(),
         const SizedBox(
           height: 30,
         ),
@@ -74,17 +75,13 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
     );
   }
 
-  Widget _booksNearYouSection() {
+  Widget _booksCategorySection() {
     return StreamBuilder(
       stream: selectedIndex == 0
           ? DatabaseService().booksStream()
           : DatabaseService().filterBooksStreamByCategory(categories[selectedIndex]),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           return Center(
             child: Text(snapshot.error.toString()),
           );
@@ -92,44 +89,66 @@ class _BooksCategoryTileState extends State<BooksCategoryTile> {
           return const Center(
             child: Text("No data to display!"),
           );
-        } else {
-          return GridView.builder(
-            scrollDirection: Axis.vertical,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1 / 2,
-              crossAxisSpacing: 20,
+        } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+          return Container(
+            width: double.infinity,
+            child: Column(
+              children: [
+                Image.asset(
+                  "assets/images/empty-cateogry.png",
+                  width: 100,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                const Text(
+                  "This category is empty!",
+                  style: TextStyle(fontSize: 16, color: Colors.blueGrey),
+                )
+              ],
             ),
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookScreen(
-                          bookId: snapshot.data![index]["id"],
-                          bookName: snapshot.data![index]["name"],
-                          author: snapshot.data![index]["author"],
-                          imagePath: snapshot.data![index]["image_path"],
-                          currentOwnerId: snapshot.data![index]["currentOwnerId"],
+          );
+        } else {
+          return Skeletonizer(
+            enabled: snapshot.connectionState == ConnectionState.waiting,
+            child: GridView.builder(
+              scrollDirection: Axis.vertical,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1 / 2,
+                crossAxisSpacing: 20,
+              ),
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookScreen(
+                            bookId: snapshot.data![index]["id"],
+                            bookName: snapshot.data![index]["name"],
+                            author: snapshot.data![index]["author"],
+                            imagePath: snapshot.data![index]["image_path"],
+                            currentOwnerId: snapshot.data![index]["currentOwnerId"],
+                          ),
                         ),
-                      ),
-                    );
-                    DatabaseService().setRecentlyVisitedBook(
-                      snapshot.data![index]["id"],
-                      snapshot.data![index]["name"],
-                      snapshot.data![index]["author"],
-                      snapshot.data![index]["image_path"],
-                      snapshot.data![index]["currentOwnerId"],
-                      snapshot.data![index]["category"],
-                    );
-                  },
-                  child: _bookCard(snapshot.data![index]));
-            },
+                      );
+                      DatabaseService().setRecentlyVisitedBook(
+                        snapshot.data![index]["id"],
+                        snapshot.data![index]["name"],
+                        snapshot.data![index]["author"],
+                        snapshot.data![index]["image_path"],
+                        snapshot.data![index]["currentOwnerId"],
+                        snapshot.data![index]["category"],
+                      );
+                    },
+                    child: _bookCard(snapshot.data![index]));
+              },
+            ),
           );
         }
       },

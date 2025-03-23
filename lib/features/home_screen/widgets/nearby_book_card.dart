@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:readify/shared/widgets/bookmark_button.dart';
@@ -80,6 +81,7 @@ class _NearbyBookCardState extends State<NearbyBookCard> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.bookData["name"],
@@ -88,16 +90,20 @@ class _NearbyBookCardState extends State<NearbyBookCard> {
                               color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const Row(
+                        Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_on,
                               color: AppStyle.primaryColor,
                               size: 17,
                             ),
-                            Text(
-                              "5km away",
-                              style: TextStyle(color: Colors.white),
+                            AutoSizeText(
+                              "${(widget.bookData["distance"].toStringAsFixed(1))} km away",
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  overflow: TextOverflow.ellipsis),
+                              maxLines: 1,
                             )
                           ],
                         )

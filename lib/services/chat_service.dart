@@ -220,9 +220,12 @@ class ChatService {
         "chatUsers": FieldValue.arrayRemove([reciverId])
       });
 
-      // ignore: use_build_context_synchronously
       Widgets.showSnackbar(
-          context, AppStyle.primaryColor, "Successfully Deleted!", ContentType.success);
+          // ignore: use_build_context_synchronously
+          context,
+          AppStyle.primaryColor,
+          "Successfully Deleted!",
+          ContentType.success);
     } catch (e) {
       log(e.toString());
     }

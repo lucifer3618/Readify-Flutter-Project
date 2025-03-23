@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:readify/features/home_screen/home_screen.dart';
 import 'package:readify/features/message_screen/chat_page.dart';
 import 'package:readify/features/notification_screen/notification_screen.dart';
@@ -12,6 +13,7 @@ import 'package:readify/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:readify/providers/user_provider.dart';
 import 'package:readify/services/database_service.dart';
 import 'package:readify/services/helper_function.dart';
 import 'package:readify/services/notification_service.dart';
@@ -80,8 +82,13 @@ void main() async {
 
   // Check for login
   bool isLoggedIn = await HelperFunction.getUserLoginStatus() ?? false;
-  runApp(MyApp(
-    isLoggedIn: isLoggedIn,
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => UserProvider()),
+    ],
+    child: MyApp(
+      isLoggedIn: isLoggedIn,
+    ),
   ));
 }
 

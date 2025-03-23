@@ -59,6 +59,10 @@ dependencies:
   googleapis_auth: ^1.6.0
   animations: ^2.0.11
   awesome_snackbar_content: ^0.1.1
+  skeletonizer: ^1.4.3
+  lottie: ^3.3.1
+  toastification: ^3.0.2
+  provider: ^6.1.2
 
 
 
@@ -89,6 +93,7 @@ flutter:
     - .env
     - assets/images/
     - assets/images/book_categories/
+    - assets/gif/
     
 
   # An image asset can refer to one or more resolution-specific "variants", see
